@@ -180,6 +180,7 @@ The **JScript Panel** enables automation in foobar2000, such as renaming files o
 ## File Structure
 
 
+## File Structure
 music-rename-tts/
 │
 ├── renaming_script.py       # Script for renaming MP3 files using LM Studio
