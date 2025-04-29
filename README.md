@@ -180,16 +180,16 @@ The **JScript Panel** enables automation in foobar2000, such as renaming files o
 ## File Structure
 
 
-## File Structure
-music-rename-tts/
-│
-├── renaming_script.py       # Script for renaming MP3 files using LM Studio
-├── tts.js                   # JScript for TTS announcements in foobar2000
-├── install_dependencies.bat # Batch file for Windows to install dependencies
-├── requirements.txt         # List of Python dependencies
-├── processed_files.json     # Tracks processed files for renaming
-├── LICENSE                  # MIT License file
-└── README.md                # Project overview and instructions
+## File structure
+
+music-rename-tts/  
+- renaming_script.py       # Script for renaming MP3 files using LM Studio  
+- tts.js                   # JScript for TTS announcements in foobar2000  
+- install_dependencies.bat # Batch file for Windows to install dependencies  
+- requirements.txt         # List of Python dependencies  
+- processed_files.json     # Tracks processed files for renaming  
+- LICENSE                  # MIT License file  
+- README.md                # Project overview and instructions  
 
 
 ---
