@@ -1,5 +1,4 @@
 # Music File Renaming and Text-to-Speech (TTS) Automation
-## Introduction
 
 ## Introduction EN
 The **Music File Renaming and Text-to-Speech (TTS) Automation** project began as an effort to create an immersive music listening experience during Discord gaming sessions with friends, initially focusing on implementing text-to-speech (TTS) announcements for tracks. As a music enthusiast managing a playlist of nearly 4000 diverse tracks—including mixes, remixes, original songs, AI covers, and custom YouTube tracks in various languages—I noticed that inconsistent and poorly formatted filenames (e.g., containing `(OFFICIAL VIDEO)`, lacking structure, or written in different languages) disrupted the listening experience and made it challenging to implement reliable TTS announcements. The variety of track types and languages also complicated language detection for selecting appropriate announcement voices, as filenames provided no clear language cues. I tried setting up language detection based on Polish special characters like ą, ę or using a text file with the most common Polish word families, but the solution was far from ideal.
