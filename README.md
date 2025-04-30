@@ -1,5 +1,10 @@
 # Music File Renaming and Text-to-Speech (TTS) Automation
 
+Project Overview
+
+PL: Projekt ułatwia porządkowanie dużych bibliotek muzycznych przez automatyczne poprawianie nazw plików MP3 za pomocą sztucznej inteligencji (LM Studio) oraz dodaje zapowiedzi utworów i godziny, czytane na głos, w odtwarzaczu foobar2000, idealne do tworzenia playlist i dzielenia się muzyką na Discordzie.
+
+EN: The project simplifies managing large music libraries by automatically standardizing MP3 file names using AI (LM Studio) and adds spoken track and time announcements in foobar2000, perfect for creating playlists and sharing music on Discord.
 
 ## Wprowadzenie PL
 
