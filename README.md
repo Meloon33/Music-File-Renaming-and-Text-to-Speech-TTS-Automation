@@ -6,8 +6,8 @@ PL: Projekt ułatwia porządkowanie dużych bibliotek muzycznych przez automatyc
 
 EN: The project simplifies managing large music libraries by automatically standardizing MP3 file names using AI (LM Studio) and adds spoken track and time announcements in foobar2000, perfect for creating playlists and sharing music on Discord.
 
-The following video demonstrates how the system generate radio-style track introductions in foobar2000:
-[Watch the Usage Video](https://raw.githubusercontent.com/Meloon33/MusicFlow/main/UsageVideo.mp4)
+The following video demonstrates how the system generates radio-style track introductions in foobar2000:
+[![Watch the Usage Video](https://img.youtube.com/vi/HG5b1zFgI6k/0.jpg)](https://youtu.be/HG5b1zFgI6k)
 
 Note: The video showcases the setup with LM Studio for AI-generated announcements, but the project supports generic TTS if LM Studio is not used.
 
