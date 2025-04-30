@@ -6,6 +6,11 @@ PL: Projekt ułatwia porządkowanie dużych bibliotek muzycznych przez automatyc
 
 EN: The project simplifies managing large music libraries by automatically standardizing MP3 file names using AI (LM Studio) and adds spoken track and time announcements in foobar2000, perfect for creating playlists and sharing music on Discord.
 
+The following video demonstrates how the system generate radio-style track introductions in foobar2000:
+[VIDEO_PLACEHOLDER]
+
+Note: The video showcases the setup with LM Studio for AI-generated announcements, but the project supports generic TTS if LM Studio is not used.
+
 ## Wprowadzenie PL
 
 Projekt **Music File Renaming and Text-to-Speech (TTS) Automation** powstał z myślą o stworzeniu wciągającego doświadczenia muzycznego podczas sesji gamingowych na Discordzie z przyjaciółmi, początkowo skupiając się na implementacji zapowiedzi tekstowo-mowy (TTS) dla utworów. Zarządzam playlistą liczącą niemal 4000 różnorodnych utworów — w tym miksy, remiksy, oryginalne piosenki, covery AI i niestandardowe utwory z YouTube w różnych językach — zauważyłem, że niespójne i źle sformatowane nazwy plików (np. zawierające `(OFFICIAL VIDEO)`, bez odpowiedniej struktury lub w różnych językach) zakłócały doświadczenie słuchania i utrudniały wdrożenie niezawodnych zapowiedzi TTS. Różnorodność typów utworów i języków dodatkowo komplikowała wykrywanie języka dla wyboru odpowiedniego głosu do zapowiedzi, ponieważ nazwy plików nie zawierały wyraźnych wskazówek językowych. Próbowałem ustawić wykrywanie języka na polskie znaki specjalne jak ą,ę lub wprowadzać plik tekstowy z najpopularniejszymi rodzinami polskich wyrazów, ale rozwiązanie było dalekie od ideału.
