@@ -1,3 +1,4 @@
+POLSKA WERSJA -> https://github.com/Meloon33/MusicFlow/blob/main/README.pl.md
 # MusicFlow
 
 ## Project Overview
