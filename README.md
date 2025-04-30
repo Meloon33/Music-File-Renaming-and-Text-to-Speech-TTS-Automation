@@ -12,7 +12,6 @@ The following video demonstrates how the system generates radio-style track intr
 Note: The video showcases the setup with LM Studio for AI-generated announcements, but the project supports generic TTS if LM Studio is not used.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Streamline your music library management with this Python-based project! Automatically rename MP3 files using language detection powered by **LM Studio** and generate text-to-speech (TTS) announcements for tracks and time in **foobar2000 32-bit** via the **JScript Panel**. This tool is ideal for music enthusiasts and developers looking to automate music file organization and add audio announcements in foobar2000.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -30,7 +29,8 @@ Streamline your music library management with this Python-based project! Automat
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 - [Contributing](#contributing)
-- [How it started](#how-it-started)
+- [How it started](#how-it-started-pl)
+- [How it started](#how-it-started-en)
 
 ## Overview
 
@@ -309,7 +309,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Feel free to open an issue or submit a pull request for improvements or bug fixes. Contributions are welcome!
 
-## How it started
+## How it started PL
 
 Projekt **Music File Renaming and Text-to-Speech (TTS) Automation** powstał z myślą o stworzeniu wciągającego doświadczenia muzycznego podczas sesji gamingowych na Discordzie z przyjaciółmi, początkowo skupiając się na implementacji zapowiedzi tekstowo-mowy (TTS) dla utworów. Zarządzam playlistą liczącą niemal 4000 różnorodnych utworów — w tym miksy, remiksy, oryginalne piosenki, covery AI i niestandardowe utwory z YouTube w różnych językach — zauważyłem, że niespójne i źle sformatowane nazwy plików (np. zawierające `(OFFICIAL VIDEO)`, bez odpowiedniej struktury lub w różnych językach) zakłócały doświadczenie słuchania i utrudniały wdrożenie niezawodnych zapowiedzi TTS. Różnorodność typów utworów i języków dodatkowo komplikowała wykrywanie języka dla wyboru odpowiedniego głosu do zapowiedzi, ponieważ nazwy plików nie zawierały wyraźnych wskazówek językowych. Próbowałem ustawić wykrywanie języka na polskie znaki specjalne jak ą,ę lub wprowadzać plik tekstowy z najpopularniejszymi rodzinami polskich wyrazów, ale rozwiązanie było dalekie od ideału.
 
@@ -325,7 +325,7 @@ Dodatkowe wyzwania obejmowały udoskonalenie skryptu zmiany nazw, aby zachować 
 
 W przyszłości planuję ulepszyć zapowiedzi TTS poprzez integrację komentarzy generowanych przez AI w czasie rzeczywistym, wysyłając nazwy plików do AI, aby tworzyły kreatywne wprowadzenia, wyszukiwały ciekawostki o utworach lub dodawały szczegóły, takie jak album i rok wydania, które następnie byłyby dynamicznie odtwarzane. Chciałbym również poprawić wydajność LLM, aby zwiększyć jego dokładność powyżej obecnych 90% dla unifikacji tytułów. Ten projekt pokazuje moje umiejętności w skryptowaniu w Pythonie, integracji AI, automatyzacji dźwięku i kreatywnym rozwiązywaniu problemów, demonstrując moją zdolność do radzenia sobie ze złożonymi wyzwaniami technicznymi i dostarczania praktycznych, skoncentrowanych na użytkowniku rozwiązań.
 
-## Introduction EN
+## How it started EN
 The **Music File Renaming and Text-to-Speech (TTS) Automation** project began as an effort to create an immersive music listening experience during Discord gaming sessions with friends, initially focusing on implementing text-to-speech (TTS) announcements for tracks. I am managing a playlist of nearly 4000 diverse tracks—including mixes, remixes, original songs, AI covers, and custom YouTube tracks in various languages—I noticed that inconsistent and poorly formatted filenames (e.g., containing `(OFFICIAL VIDEO)`, lacking structure, or written in different languages) disrupted the listening experience and made it challenging to implement reliable TTS announcements. The variety of track types and languages also complicated language detection for selecting appropriate announcement voices, as filenames provided no clear language cues. I tried setting up language detection based on Polish special characters like ą, ę or using a text file with the most common Polish word families, but the solution was far from ideal.
 
 My first attempt was with AIMP, my default music player, but its limited support for plugins and scripting, combined with its tendency to modify file metadata during playback, caused TTS announcements to trigger intermittently throughout a track rather than only at the start. I switched to foobar2000, initially testing the 64-bit version, but found that the 32-bit version offered significantly better component support, particularly for the JScript Panel plugin, which became central to my solution. To address the filename issue, I developed a Python script (`renaming_script.py`) that uses a locally hosted AI model to standardize filenames into a consistent format: `Artist - Title - [LANG]` (e.g., `ACDC - You Shook Me All Night Long - [ENG]`). The script sends filenames to the AI, which suggests a clean name and detects the language, appending a language tag that the TTS system uses without reading it aloud.
