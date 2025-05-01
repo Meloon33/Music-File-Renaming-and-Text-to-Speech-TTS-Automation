@@ -13,31 +13,30 @@
 //   - Windows Script Host (WSH) enabled on system
 //   - Proper PATH configuration for edge-playback CLI
 
-
-// Create a WScript Shell object for executing external commands and showing popups
+// Create a WScript Shell object for executing external commands
 var WshShell = new ActiveXObject("WScript.Shell");
 
 // === CONFIGURATION ===
 var config = {
-    // Mapping of language codes to Azure Neural voices
+    // Mapping of language codes to arrays of Azure Neural voices
     voices: {
-        "PL": "pl-PL-ZofiaNeural",    // Polish voice
-        "ENG": "en-US-JennyNeural",   // English voice
-        "PL-ENG": "pl-PL-ZofiaNeural",// Polish-English bilingual voice
-        "DE": "de-DE-KatjaNeural",    // German voice
-        "FR": "fr-FR-DeniseNeural",   // French voice
-        "ES": "es-ES-ElviraNeural",   // Spanish voice
-        "ITA": "it-IT-ElsaNeural",    // Italian voice
-        "PT": "pt-PT-FernandaNeural", // Portuguese voice
-        "RU": "ru-RU-SvetlanaNeural", // Russian voice
-        "JA": "ja-JP-NanamiNeural",   // Japanese voice
-        "ZH": "zh-CN-XiaoxiaoNeural"  // Chinese voice
+        "PL": ["pl-PL-ZofiaNeural", "pl-PL-MarekNeural"],          // Polish voices
+        "ENG": ["en-US-JennyNeural", "en-US-GuyNeural"],          // English voices
+        "PL-ENG": ["pl-PL-ZofiaNeural", "pl-PL-MarekNeural"],     // Polish-English bilingual voices
+        "DE": ["de-DE-KatjaNeural", "de-DE-ConradNeural"],        // German voices
+        "FR": ["fr-FR-DeniseNeural", "fr-FR-HenriNeural"],        // French voices
+        "ES": ["es-ES-ElviraNeural", "es-ES-AlvaroNeural"],       // Spanish voices
+        "IT": ["it-IT-ElsaNeural", "it-IT-DiegoNeural"],          // Italian voices
+        "PT": ["pt-PT-FernandaNeural", "pt-PT-DuarteNeural"],     // Portuguese voices
+        "RU": ["ru-RU-SvetlanaNeural", "ru-RU-DmitryNeural"],     // Russian voices
+        "JA": ["ja-JP-NanamiNeural", "ja-JP-KeitaNeural"],        // Japanese voices
+        "ZH": ["zh-CN-XiaoxiaoNeural", "zh-CN-YunyangNeural"]     // Chinese voices
     },
     charsPerSecond: 2.5,                // Estimate of TTS characters per second for timing
     ttsRate: "+0%",                   // Speech rate adjustment for TTS
     apiUrl: "http://localhost:1234/v1/chat/completions", // Local LLM endpoint
-    modelName: "",                    // Using current LM Studio model by default (tested on gemma-3-4b-it-qat)
-    debug: false                       // Debug mode flag (verbose logging)
+    modelName: "",                    // Using current LM Studio model by default, tested with gemma-3-4b-it-qat
+    debug: true                       // Debug mode enabled for file logging
 };
 
 // === USER PREFERENCE ===
@@ -48,26 +47,37 @@ var timeAnnouncedHour = null;         // Track last announced hour to avoid repe
 
 // === POLISH TIME WORDING ARRAYS ===
 // Hour names in Polish (0-23)
-var godziny = ["zero","pierwsza","druga","trzecia","czwarta","piąta","szósta","sódma","ósma","dziewiąta","dziesiąta","jedenasta","dwunasta","trzynasta","czternasta","piętnaasta","szesnasta","siedemnasta","osiemnasta","dziewiętnasta","dwudziesta","dwudziesta pierwsza","dwudziesta druga","dwudziesta trzecia"];
+var godziny = ["zero","pierwsza","druga","trzecia","czwarta","piąta","szósta","sódma","ósma","dziewiąta","dziesiąta","jedenasta","dwunasta","trzynasta","czternasta","piętnasta","szesnasta","siedemnasta","osiemnasta","dziewiętnasta","dwudziesta","dwudziesta pierwsza","dwudziesta druga","dwudziesta trzecia"];
 // Minute names in Polish (0-59)
 var minuty = [
     "zero","jedna","dwie","trzy","cztery","pięć","sześć","siedem","osiem","dziewięć","dziesięć",
-    "jedenaście","dwanaście","trzynaście","czternaście","piętnaście","szesnaście","siedemnasta","osiemnaście","dziewiętnaście","dwadzieścia",
+    "jedenaście","dwanaście","trzynaście","czternaście","piętnasta","szesnaście","siedemnasta","osiemnasta","dziewiętnasta","dwadzieścia",
     "dwadzieścia jeden","dwadzieścia dwa","dwadzieścia trzy","dwadzieścia cztery","dwadzieścia pięć","dwadzieścia sześć","dwadzieścia siedem","dwadzieścia osiem","dwadzieścia dziewięć",
     "trzydzieści","trzydzieści jeden","trzydzieści dwa","trzydzieści trzy","trzydzieści cztery","trzydzieści pięć","trzydzieści sześć","trzydzieści siedem","trzydzieści osiem","trzydzieści dziewięć",
-    "czterdzieści","czterdzieści jeden","czterdzieści dwa","czterdzieści trzy","czterdzieści cztery","czterdzieści pięć","czterdzieści sześć","czterdzieści siedem","czterdzieści osiem","czterdzieści dziewięć",
+    "czterdzieści","czterdzieści jeden","czterdzieści dwa","czterdzieści trzy","czterdzieści cztery","czterdzieści pięć","czterdzieści sześć","czterdzieści siedem","czterdzieści dziewięć",
     "pięćdziesiąt","pięćdziesiąt jeden","pięćdziesiąt dwa","pięćdziesiąt trzy","pięćdziesiąt cztery","pięćdziesiąt pięć","pięćdziesiąt sześć","pięćdziesiąt siedem","pięćdziesiąt osiem","pięćdziesiąt dziewięć"
 ];
 
 // === UTILITIES ===
 /**
- * Logs debug messages via popup if debug mode is enabled
- * @param {string} msg - Message to display
+ * Logs debug messages to a file if debug mode is enabled
+ * @param {string} msg - Message to log
  */
 function debugLog(msg) {
     if (config.debug) {
-        // Show a transient popup with debug info
-        WshShell.Popup("DEBUG: " + msg, 1, "Debug", 0);
+        try {
+            // Create a timestamp for the log entry
+            var now = new Date();
+            var timestamp = now.toISOString().replace("T", " ").replace("Z", "");
+            var logMessage = "[" + timestamp + "] DEBUG: " + msg;
+
+            // Use WScript.Shell to append to a file via command line
+            var logFilePath = "%USERPROFILE%\\foobar2000_debug.log"; // Expands to C:\Users\YourUsername\foobar2000_debug.log
+            var cmd = "cmd.exe /C echo " + escapeQuotes(logMessage) + ">>" + logFilePath;
+            WshShell.Run(cmd, 0, true); // Run command, wait for completion
+        } catch (e) {
+            // Silently fail to avoid script interruption
+        }
     }
 }
 
@@ -88,6 +98,19 @@ function stripTags(t) { return t.replace(/\[(?:PL|ENG|PL-ENG|[A-Z]{2,4})\]/gi, "
 debugLog("Utilities initialized");
 
 /**
+ * Randomly select a voice from the available voices for a given language
+ * @param {string} lang - Language code
+ * @returns {string} Selected voice
+ */
+function getRandomVoice(lang) {
+    var voiceList = config.voices[lang] || config.voices["ENG"];
+    var randomIndex = Math.floor(Math.random() * voiceList.length);
+    var selectedVoice = voiceList[randomIndex];
+    debugLog("Selected voice for " + lang + ": " + selectedVoice);
+    return selectedVoice;
+}
+
+/**
  * Determine language from filename tags
  * @param {string} fn - Filename
  * @returns {string} Language code
@@ -101,7 +124,7 @@ function detectLang(fn) {
     if (l.indexOf("[de]") !== -1) return "DE";
     if (l.indexOf("[fr]") !== -1) return "FR";
     if (l.indexOf("[es]") !== -1) return "ES";
-    if (l.indexOf("[it]") !== -1) return "ITA";
+    if (l.indexOf("[it]") !== -1) return "IT";
     if (l.indexOf("[pt]") !== -1) return "PT";
     if (l.indexOf("[ru]") !== -1) return "RU";
     if (l.indexOf("[ja]") !== -1) return "JA";
@@ -146,22 +169,50 @@ function getGenericTime(h, m) {
 debugLog("Time formatting functions loaded");
 
 /**
- * Speak a given text via TTS CLI
+ * Pause playback, speak text via TTS CLI, and resume playback after estimated duration
+ * @param {string} txt - Text to speak
+ * @param {string} lang - Language code for voice selection
+ */
+function pauseAndSpeak(txt, lang) {
+    txt = txt.replace(/[\r\n]+/g, ' ').trim();
+    var v = getRandomVoice(lang); // Randomly select a voice
+    var cmd = "edge-playback --voice " + v + " --rate \"" + config.ttsRate + "\" --text \"" + escapeQuotes(txt) + "\"";
+    debugLog("Pausing playback and running TTS command: " + cmd);
+    
+    // Pause playback if playing
+    if (fb.IsPlaying && !fb.IsPaused) {
+        fb.Pause();
+    }
+    
+    // Execute TTS command
+    WshShell.Run(cmd, 0, false);
+    
+    // Estimate duration (milliseconds) based on characters per second
+    var estimatedDuration = (txt.length / config.charsPerSecond) * 300;
+    debugLog("Estimated TTS duration: " + estimatedDuration + "ms");
+    
+    // Schedule playback resumption
+    window.SetTimeout(function () {
+        if (fb.IsPaused) {
+            fb.Play();
+            debugLog("Playback resumed");
+        }
+    }, estimatedDuration + 500); // Add 500ms buffer to ensure TTS completes
+}
+
+/**
+ * Speak a given text via TTS CLI, pausing and resuming playback
  * @param {string} txt - Text to speak
  * @param {string} lang - Language code for voice selection
  */
 function speak(txt, lang) {
-    txt = txt.replace(/[\r\n]+/g, ' ').trim();
-    var v = config.voices[lang] || config.voices["ENG"];
-    var cmd = "edge-playback --voice " + v + " --rate \"" + config.ttsRate + "\" --text \"" + escapeQuotes(txt) + "\"";
-    debugLog("Running TTS command: " + cmd);
-    WshShell.Run(cmd, 0, false);
+    pauseAndSpeak(txt, lang);
 }
 
-debugLog("Speak utility ready");
+debugLog("Speak utility with pause/resume ready");
 
 /**
- * Fallback introduction if LLM fails or returns too short
+ * Fallback introduction if LLM fails or returns invalid output
  * @param {string} artist
  * @param {string} title
  * @param {string} lang
@@ -172,73 +223,61 @@ debugLog("Speak utility ready");
 function fallbackIntro(artist, title, lang, h, m, includeTime) {
     debugLog("Using fallback intro for " + artist + " - " + title);
     var introText = "";
-    switch (lang === "PL-ENG" ? "ENG" : lang) {
-        case "PL":
-            introText = "Następny utwór to '" + title + "' w wykonaniu " + artist + "."; break;
-        case "ENG":
-            introText = "Up next: '" + title + "' by " + artist + "."; break;
-        case "DE":
-            introText = "Als nächstes hören wir '" + title + "' von " + artist + "."; break;
-        case "FR":
-            introText = "Ensuite, voici '" + title + "' par " + artist + "."; break;
-        case "ES":
-            introText = "A continuación, '" + title + "' de " + artist + "."; break;
-        default:
-            introText = "Up next track: '" + title + "' by " + artist + "."; break;
-    }
     if (includeTime) {
         var timeText = (lang === "PL" ? getPolishTime(h, m) : getEnglishTime(h, m));
-        speak(timeText, lang);
-        var estimatedDuration = (timeText.length / config.charsPerSecond) * 300;
-        debugLog("Waiting " + estimatedDuration + "ms before fallback intro");
-        window.SetTimeout(function () { speak(introText, lang); }, estimatedDuration + 500);
+        introText = (lang === "PL"
+            ? timeText + " Czas na '" + title + "' w wykonaniu " + artist + "."
+            : timeText + " Time for '" + title + "' by " + artist + ".");
+        pauseAndSpeak(introText, lang);
     } else {
-        speak(introText, lang);
+        introText = (lang === "PL"
+            ? "Następny utwór to '" + title + "' w wykonaniu " + artist + "."
+            : "Up next: '" + title + "' by " + artist + ".");
+        pauseAndSpeak(introText, lang);
     }
 }
 
 debugLog("Fallback intro configured");
 
 /**
- * Request dynamic intro from LLM, fallback on error or too-short
+ * Request dynamic intro from LLM, fallback on error or invalid output
  */
 function getIntroFromLLM(artist, title, h, m, lang, includeTime, cb) {
-    debugLog("Requesting LLM intro for " + artist + " - " + title + ", includeTime=" + includeTime);
     var timeTxt = (lang === "ENG" ? getEnglishTime(h, m) : getPolishTime(h, m));
     var userPrompt = (lang === "ENG"
-        ? "You are a wildly creative radio DJ for an underground station.\n" +
+        ? "You are a lively radio DJ on Radio.\n" +
+          "Create a vivid 1–2 sentence intro (10–20 words) for the song \"" + title + "\" by " + artist + ".\n" +
+          "Start with the spoken announcement. Include artist (" + artist + ") and title (\"" + title + "\") explicitly.\n" +
           (includeTime
-            ? timeTxt + ". Time must be naturally included in the announcement."
-            : "Use the time only as atmospheric context – DO NOT mention it directly.") +
-          "\nCreate a short, one or two-sentence introduction for the track \"" + title + "\" by " + artist + "." +
-          " Be vivid, unpredictable, and entertaining. Avoid repetition or generic phrases like 'get ready'. Max 35 words." +
-          " Start directly with the announcement text itself. Do NOT include any meta-text like 'Okay, here’s your intro,' 'This is your announcement,' or similar." +
-          " Your response will be read *directly* and *verbatim* by a text-to-speech system as a radio announcement." +
-          " Do NOT include any stage directions, voice tone instructions, or anything in parentheses like (in calm voice), (*shouting*), or similar. Your text must sound natural when spoken out loud."
-        : "Jesteś szalonym, twórczym DJ-em radiowym.\n" +
+            ? "It is " + timeTxt + ". Include the time concisely in the announcement (e.g., 'it’s 13:24').\n"
+            : "Do NOT mention the time; use it as background context only.\n") +
+          "Use a fun, dramatic, warm, or mysterious tone.\n" +
+          "Output ONLY spoken text, 10–20 words, no sound effects, stage directions, parentheses, or meta-text.\n" +
+          "Example: 'Hey crew, it’s 13:24! Hans Zimmer’s Time fuels our Borderlands chaos!'"
+        : "Jesteś energicznym DJ-em Radio.\n" +
+          "Stwórz żywą zapowiedź (10–20 słów, 1–2 zdania) dla utworu \"" + title + "\" w wykonaniu " + artist + ".\n" +
+          "Zacznij od tekstu zapowiedzi. Włącz artystę (" + artist + ") i tytuł (\"" + title + "\") wyraźnie.\n" +
           (includeTime
-            ? timeTxt + ". Czas musi być ładnie dołączony do twojej odpowiedzi jako część zapowiedzi utworu.."
-            : "Użyj godziny tylko jako tła – NIE wspominaj jej wprost.") +
-          "\nStwórz krótką, jedno- lub dwuzdaniową zapowiedź utworu \"" + title + "\" w wykonaniu " + artist + "." +
-          " Bądź obrazowy, zaskakujący i zabawny. Unikaj powtórzeń i banałów. Maksymalnie 35 słów." +
-          " Zaczynaj bezpośrednio od tekstu zapowiedzi. NIE dodawaj meta-tekstu, np. 'Oto zapowiedź,' 'To jest Twoja zapowiedź,' lub podobnych." +
-          " Twoja odpowiedź zostanie przeczytana *bezpośrednio* przez syntezator mowy (TTS) jako zapowiedź radiowa." +
-          " NIE wolno dodawać żadnych wskazówek w nawiasach, np. (spokojnym głosem), (*krzyk*), (ciszej). Treść musi naturalnie brzmieć wypowiedziana na głos.");
+            ? "Jest " + timeTxt + ". Włącz czas zwięźle w zapowiedź (np. 'jest trzynasta dwadzieścia cztery').\n"
+            : "NIE wspominaj czasu; użyj go tylko jako tła.\n") +
+          "Użyj tonu zabawnego, dramatycznego, ciepłego lub tajemniczego.\n" +
+          "Wypisz TYLKO tekst do wypowiedzenia, 10–20 słów, bez efektów dźwiękowych, nawiasów czy meta-tekstu.\n" +
+          "Przykład: 'Jest trzynasta dwadzieścia cztery! Time Hansa Zimmera napędza Borderlands!'");
     
     var body = {
         messages: [
             { role: "system", content: lang === "ENG" ? "You are a radio DJ." : "Jesteś DJ-em radiowym." },
             { role: "user", content: userPrompt }
         ],
-        temperature: 1
+        temperature: 0.0
     };
-    if (config.modelName) body.model = config.modelName;  // include custom model if specified
+    if (config.modelName) body.model = config.modelName;
 
     try {
         var xhr = new ActiveXObject("MSXML2.XMLHTTP");
         xhr.open("POST", config.apiUrl, true);
         xhr.setRequestHeader("Content-Type", "application/json");
-        if (config.debug) debugLog("LLM prompt: " + userPrompt);
+        debugLog("LLM prompt: " + userPrompt);
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
@@ -247,11 +286,13 @@ function getIntroFromLLM(artist, title, h, m, lang, includeTime, cb) {
                     try {
                         var res = JSON.parse(xhr.responseText);
                         var msg = res.choices[0].message.content.trim();
-                        // strip any stray brackets or stage directions
-                        msg = msg.replace(/^\s*\([^)]*\)\s*/g, "").replace(/\([^)]*\)/g, "").replace(/\[[^\]]+\]/g, "").replace(/\*[^*]+\*/g, "");
                         var wordCount = msg.split(/\s+/).filter(Boolean).length;
                         debugLog("LLM reply: " + msg + " (" + wordCount + " words)");
-                        if (!msg || wordCount < 10) {
+                        if (!msg) {
+                            debugLog("LLM validation failed: Empty response");
+                            fallbackIntro(artist, title, lang, h, m, includeTime);
+                        } else if (wordCount < 8 || wordCount > 22) {
+                            debugLog("LLM validation failed: Invalid word count (" + wordCount + ")");
                             fallbackIntro(artist, title, lang, h, m, includeTime);
                         } else {
                             cb(msg, lang);
@@ -261,6 +302,7 @@ function getIntroFromLLM(artist, title, h, m, lang, includeTime, cb) {
                         fallbackIntro(artist, title, lang, h, m, includeTime);
                     }
                 } else {
+                    debugLog("LLM request failed with status " + xhr.status);
                     fallbackIntro(artist, title, lang, h, m, includeTime);
                 }
             }
@@ -303,11 +345,11 @@ function on_playback_new_track() {
         timeAnnouncedHour = h;
     }
 
-    // schedule immediate call to generate and speak intro
+    // Schedule immediate call to generate and speak intro
     currentTimeout = window.SetTimeout(function () {
         getIntroFromLLM(artist, title, h, m, lang, shouldAnnounceTime, function (txt, lg) {
-            debugLog("Speaking generated intro");
-            speak(txt, lg);
+            debugLog("Speaking generated intro: " + txt);
+            pauseAndSpeak(txt, lg);
         });
         currentTimeout = null;
     }, 0);
